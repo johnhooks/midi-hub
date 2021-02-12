@@ -1,0 +1,25 @@
+{
+  "editor.rulers": [84],
+  "editor.renderWhitespace": "boundary",
+  "files.encoding": "utf8",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.exclude": {
+    "**/__pycache__": true
+  },
+  "search.exclude": {
+    "**/__pycache__/**": true,
+  },
+  "cSpell.words": [
+    "aconnect",
+    "balena",
+    "midihub",
+    "unmount"
+  ],
+  "cSpell.ignorePaths": [
+    "**/__pycache__/**",
+    "**/vscode-extension/**",
+    "**/.git/objects/**",
+    "./vscode/**",
+  ]
+}
