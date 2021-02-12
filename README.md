@@ -1,4 +1,4 @@
-# Python MIDI Hub
+# midi-hub
 
 **Simply connect together all MIDI USB devices on a Raspberry Pi.**
 
@@ -37,7 +37,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 - Boot the Raspberry Pi
 - Find its IP address
 - `ssh` in using username `pi` and password `raspberry`
-- Issue the following commands
+- Install the packages
   ```bash
   sudo apt update
   sudo apt upgrade
@@ -47,10 +47,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 ### 3. Configure automatic MIDI connection
 
-- Test that the `midi-hub` python package was installed correctly
+- Test that the `midihub` python module was installed correctly
 
   ```bash
-  python3 -m midi-hub
+  python3 -m midihub
   ```
 
 - And check the results
@@ -62,10 +62,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 - Create the file `/etc/udev/rules.d/33-midiusb.rules`
 
   ```bash
-  echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/bin python3 -m midi-hub"' | sudo tee /etc/udev/rules.d/33-midiusb.rules
+  echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/bin/python3 -m midihub"' | sudo tee /etc/udev/rules.d/33-midiusb.rules
   ```
 
-- Issue the following commands
+- Restart the device manager
 
   ```bash
   sudo udevadm control --reload
@@ -74,14 +74,14 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 - Configure MIDI connection at system boot
 
-  - Create the file `/lib/systemd/system//midi.service` with the contents:
+  - Create the file `/lib/systemd/system/midi.service` with the contents:
 
     ```
     [Unit]
     Description=Initial USB MIDI connect
 
     [Service]
-    ExecStart=/usr/bin python3 -m midi-hub
+    ExecStart=/usr/bin/python3 -m midihub
 
     [Install]
     WantedBy=multi-user.target
