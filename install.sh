@@ -1,39 +1,50 @@
-script="/usr/bin/python3 -m midihub"
+#!/bin/bash
 
-usb=$(cat <<EOF
-ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="$script"
+VERSION=v.0.1.2
+
+SCRIPT="/usr/bin/python3 -m midihub"
+
+MIDI_RULE_FILE=/etc/udev/rules.d/33-midiusb.rules
+MIDI_RULE=$(cat <<EOF
+ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="$SCRIPT"
 EOF
 )
 
-service=$(cat <<- EOF
+SERVICE_FILE=/lib/systemd/system/midi.service
+SERVICE=$(cat <<- EOF
 	[Unit]
 	Description=Initial USB MIDI connect
 
 	[Service]
-	ExecStart=$script
+	ExecStart=$SCRIPT
 
 	[Install]
 	WantedBy=multi-user.target
 EOF
 )
 
-echo "=> Install Packages"
-apt-get update
-# apt-get upgrade
 apt-get --yes install git python3-pip
-pip3 install git+https://github.com/johnhooks/midi-hub.git#egg=midi-hub
+python3 -m pip install git+https://github.com/johnhooks/midi-hub.git@$VERSION#egg=midi-hub
+echo "=> Ensure necessary packages are installed"
 
-echo "=> Create USB MIDI rule"
-echo $usb > /etc/udev/rules.d/33-midiusb.rules
+echo "$MIDI_RULE" > $MIDI_RULE_FILE
+echo "=> Created $MIDI_RULE_FILE"
 
-echo "=> Restart the device manager"
 udevadm control --reload
 service udev restart
+echo "=> Restarted the device manager"
 
-echo "=> Create the service to call midihub on boot"
-echo "$service" > tee /lib/systemd/system/midi.service
+echo "$SERVICE" > $SERVICE_FILE
+echo "=> Created $SERVICE_FILE"
 
-echo "=> Enable restart systemctl and enable midihub as a service"
 systemctl daemon-reload
 systemctl enable midi.service
 systemctl start midi.service
+echo "=> Restarted systemctl, enabled and started the new midi.service"
+
+unset VERSION
+unset SCRIPT
+unset MIDI_RULE
+unset MIDI_RULE_FILE
+unset SERVICE
+unset SERVICE_FILE

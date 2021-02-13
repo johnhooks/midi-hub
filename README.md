@@ -12,10 +12,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 - Download [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/operating-systems/)
 - Download and install [balenaEtcher](https://www.balena.io/etcher/)
-- Using Etcher, flash the Raspberry Pi OS Lite image to an microSD card
-- Inside the microSD `boot` folder create the following files:
+- Use Etcher to flash the Raspberry Pi OS Lite image onto the microSD card
+- Create the following files inside the `boot` folder of the microSD:
 
-  - `wpa_supplicant.conf` with the contents:
+  - `/boot/wpa_supplicant.conf`
 
     ```
     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -28,72 +28,32 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
     }
     ```
 
-  - Create an empty file named `ssh` (no extension)
+  - `/boot/ssh`
 
-- Unmount the microSD and plug it on the Raspberry
+    To enable ssh, create an empty file named `ssh` (no extension)
 
-### 2. Install packages
+- Unmount the microSD, plug it into the Pi and boot it up
 
-- Boot the Raspberry Pi
-- Find its IP address
-- `ssh` in using username `pi` and password `raspberry`
-- Install the packages
-  ```bash
-  sudo apt update
-  sudo apt upgrade
-  sudo apt install git python3-pip
-  sudo pip3 install git+https://github.com/johnhooks/midi-hub.git#egg=midi-hub
-  ```
+### 2. Update and Upgrade System
 
-### 3. Configure automatic MIDI connection
+Recommended to update the package system and upgrade
 
-- Test that the `midihub` python module was installed correctly
+```bash
+sudo apt update
+sudo apt upgrade
+```
 
-  ```bash
-  python3 -m midihub
-  ```
+### 3. Run Install Script
 
-- And check the results
+You may either download and run the script manually, or use the following cURL or Wget command:
 
-  ```bash
-  aconnect -l
-  ```
+```bash
+curl -o- https://raw.githubusercontent.com/johnhooks/midi-hub/v0.1.2/install.sh | sudo bash
+```
 
-- Create the file `/etc/udev/rules.d/33-midiusb.rules`
-
-  ```bash
-  echo 'ACTION=="add|remove", SUBSYSTEM=="usb", DRIVER=="usb", RUN+="/usr/bin/python3 -m midihub"' | sudo tee /etc/udev/rules.d/33-midiusb.rules
-  ```
-
-- Restart the device manager
-
-  ```bash
-  sudo udevadm control --reload
-  sudo service udev restart
-  ```
-
-- Configure MIDI connection at system boot
-
-  - Create the file `/lib/systemd/system/midi.service` with the contents:
-
-    ```
-    [Unit]
-    Description=Initial USB MIDI connect
-
-    [Service]
-    ExecStart=/usr/bin/python3 -m midihub
-
-    [Install]
-    WantedBy=multi-user.target
-    ```
-
-  - Restart `systemctl` and enable `midi.service`
-
-    ```bash
-    sudo systemctl daemon-reload
-    sudo systemctl enable midi.service
-    sudo systemctl start midi.service
-    ```
+```bash
+wget -qO- https://raw.githubusercontent.com/johnhooks/midi-hub/v0.1.2/install.sh | sudo bash
+```
 
 ## Inspiration
 
