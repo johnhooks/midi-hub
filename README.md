@@ -48,11 +48,11 @@ sudo apt upgrade
 You may either download and run the script manually, or use the following cURL or Wget command:
 
 ```bash
-curl -o- https://raw.githubusercontent.com/johnhooks/midi-hub/v0.1.2/install.sh | sudo bash
+curl -o- https://raw.githubusercontent.com/johnhooks/midi-hub/v0.1.0/install.sh | sudo bash
 ```
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/johnhooks/midi-hub/v0.1.2/install.sh | sudo bash
+wget -qO- https://raw.githubusercontent.com/johnhooks/midi-hub/v0.1.0/install.sh | sudo bash
 ```
 
 ## Inspiration

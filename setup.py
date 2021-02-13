@@ -13,7 +13,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='midi-hub',
-    version='0.1.2',
+    version='0.1.0',
     license='GNU',
     url='https://github.com/johnhooks/midi-hub',
     author='John Hooks',

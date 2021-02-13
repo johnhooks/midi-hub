@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=v.0.1.2
+VERSION=v0.1.0
 
 SCRIPT="/usr/bin/python3 -m midihub"
 
