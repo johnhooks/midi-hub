@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright (C) 2021 copyright-holder John Hooks <bitmachina@outlook.com>
 # This file is part of midi-hub.
 #
@@ -15,12 +16,13 @@
 # along with midi-hub.  If not, see <https://www.gnu.org/licenses/>.
 
 import sys
-
+import asyncio
 import midihub.aconnect as aconnect
-import midihub.ipc.server as server
+import midihub.ipc.message as message
 
 
-async def connectall() -> None:
+async def handle_usb():
+    print("usb device connected")
     try:
         await aconnect.connectall()
     except aconnect.NoConnections:
@@ -29,5 +31,29 @@ async def connectall() -> None:
         print("aconnect not found", file=sys.stderr)
 
 
-async def start_service() -> None:
-    await server.start()
+async def handle_message(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    try:
+        body = await asyncio.wait_for(message.decode(reader), timeout=1.0)
+
+        if body['type'] == 'usb':
+            await handle_usb()
+
+    except Exception as err:
+        print(err)
+
+    writer.close()
+    await writer.wait_closed()
+
+
+async def start():
+    server = await asyncio.start_unix_server(handle_message, '/tmp/py-midihub.sock')
+
+    addr = server.sockets[0].getsockname()
+    print(f'Serving on {addr}')
+
+    async with server:
+        await server.serve_forever()
+
+
+if __name__ == "__main__":
+    asyncio.run(start())
