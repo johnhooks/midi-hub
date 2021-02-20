@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with midi-hub.  If not, see <https://www.gnu.org/licenses/>.
 
+__all__ = ('connectall', 'NotFound', 'NoConnections')
+
 import re
 import asyncio
 from typing import List, Tuple, NamedTuple, Optional
@@ -100,15 +102,13 @@ def zip(devices: MidiList) -> MidiConnections:
     return result
 
 
-async def get_connections() -> MidiConnections:
-    return zip(parse(await list()))
-
-
 async def connectall() -> None:
     connections = zip(parse(await list()))
     if connections:
         for tx_port, rx_port in connections:
             print(f"connecting: {tx_port} -> {rx_port}")
-            await connect(tx_port, rx_port)
+            err = await connect(tx_port, rx_port)
+            if (err):
+                print(err)
     else:
         raise NoConnections

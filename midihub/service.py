@@ -15,10 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with midi-hub.  If not, see <https://www.gnu.org/licenses/>.
 
+__all__ = ('start')
+
 import sys
 import asyncio
+from asyncio.streams import StreamReader, StreamWriter
 import midihub.aconnect as aconnect
-import midihub.ipc.message as message
+import midihub.message as message
+from enum import Enum
+from typing import NamedTuple
+
+
+class ClientType(Enum):
+    Notify = "notify"
+    Monitor = "monitor"
+
+
+Client = NamedTuple("Client", [("type", ClientType),
+                               ("reader", StreamReader), ("writer", StreamWriter)])
 
 
 async def handle_usb():
@@ -31,22 +45,28 @@ async def handle_usb():
         print("aconnect not found", file=sys.stderr)
 
 
-async def handle_message(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+async def handle_connected(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    addr = writer.get_extra_info('peername')
+    print(f"connected to {addr}")
     try:
-        body = await asyncio.wait_for(message.decode(reader), timeout=1.0)
+        # Looping like this should allow multiple clients
+        while True:
+            msg = await asyncio.wait_for(message.decode(reader), 2.0)
+            if msg['type'] == 'usb':
+                await handle_usb()
+                break  # kludge, need to break loop because a notification fires and disconnects
 
-        if body['type'] == 'usb':
-            await handle_usb()
-
-    except Exception as err:
-        print(err)
+    except asyncio.TimeoutError:
+        print('connection timed out')
+    except Exception as e:
+        print(e)
 
     writer.close()
     await writer.wait_closed()
 
 
 async def start():
-    server = await asyncio.start_unix_server(handle_message, '/tmp/py-midihub.sock')
+    server = await asyncio.start_server(handle_connected, '127.0.0.1', 5432)
 
     addr = server.sockets[0].getsockname()
     print(f'Serving on {addr}')
@@ -55,5 +75,7 @@ async def start():
         await server.serve_forever()
 
 
+# Read more thoroughly
+# https://stackoverflow.com/questions/43393764/python-3-6-project-structure-leads-to-runtimewarning
 if __name__ == "__main__":
     asyncio.run(start())

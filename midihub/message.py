@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with midi-hub.  If not, see <https://www.gnu.org/licenses/>.
 
+__all__ = ('decode', 'encode')
+
 import re
 import json
 from asyncio import StreamReader
@@ -43,10 +45,11 @@ async def parse_body(reader: StreamReader, headers: dict):
 
 
 async def parse_headers(reader: StreamReader) -> dict:
-    content_length: int
+    content_length: int = None
 
     while True:
         line = await reader.readline()
+        # need to handle the end of input `line == ""`
         if not line or line == b'\n':
             break
         match = re.search(content_length_regex, line.decode('utf8'))

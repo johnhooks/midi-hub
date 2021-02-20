@@ -23,11 +23,14 @@ import asyncio
 
 async def notify_usb():
     try:
-        _, writer = await asyncio.open_unix_connection('/tmp/py-midihub.sock')
+        _, writer = await asyncio.open_connection('127.0.0.1', 5432)
+
         body = json.dumps({"type": "usb"}).encode('utf8')
         header = f'Content-Length: {len(body)}\n\n'.encode('utf8')
+
         writer.write(header + body)
         await asyncio.wait_for(writer.drain(), 1.0)
+
         writer.close()
         await writer.wait_closed()
 

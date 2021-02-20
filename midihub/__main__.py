@@ -17,6 +17,6 @@
 # along with midi-hub.  If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
-from midihub import start_service
+import midihub.service as service
 
-asyncio.run(start_service())
+asyncio.run(service.start())

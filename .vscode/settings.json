@@ -15,10 +15,15 @@
   ],
   "cSpell.words": [
     "aconnect",
+    "autopep",
     "asyncio",
     "balena",
     "midihub",
+    "pycache",
     "unmount"
+  ],
+  "cSpell.ignoreWords": [
+    "IOERR"
   ],
   "cSpell.ignorePaths": [
     "**/__pycache__/**",
